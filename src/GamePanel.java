@@ -57,8 +57,21 @@ public class GamePanel extends JPanel implements ActionListener {
             g.drawLine(0, i*UNIT_SIZE, SCREEN_WIDTH*1, i*UNIT_SIZE);
         }
 
+
         g.setColor(Color.red);
         g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
+
+        // yılanın görününümü
+        for(int i = 0; i < bodyPart; i++){
+            if( i==0){
+                g.setColor(Color.green);
+                g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE);
+            }else{
+                g.setColor(new Color(45,180,0));
+                g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE);
+
+            }
+        }
 
     }
     public void newApple(){
@@ -67,8 +80,25 @@ public class GamePanel extends JPanel implements ActionListener {
 
     }
     public void move(){
-        for (int i = bodyPart ; i>0 ; i--){
-            x[i] = x[i-1];
+        for (int i = bodyPart ; i > 0 ; i--){
+            x[i] = x[i-1]; // bir önceki konum ile değişir.-yatay
+            y[i] = y[i-1]; // bir önceki konum ile değişir.-dikey
+        }
+        switch (direction){
+            case 'U':
+                y[0] = y[0] - UNIT_SIZE;
+                break;
+            case 'D':
+                y[0] = y[0] + UNIT_SIZE;
+                break;
+            case 'L':
+                x[0] = x[0] - UNIT_SIZE;
+                break;
+            case 'R':
+                x[0] =x[0] + UNIT_SIZE;
+                break;
+
+
         }
 
     }
