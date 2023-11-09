@@ -36,6 +36,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     }
     //method
+
     public void startGame(){
         newApple();
         running  = true;
@@ -51,30 +52,43 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void draw(Graphics g){
 
-        //dikey ve yatay çizgiler için desenleri çizmek için for döngüsü.
-        for(int i = 0; i < SCREEN_HEIGH / UNIT_SIZE; i++){
-            g.drawLine(i*UNIT_SIZE, 0, i*UNIT_SIZE, SCREEN_HEIGH);
-            g.drawLine(0, i*UNIT_SIZE, SCREEN_WIDTH*1, i*UNIT_SIZE);
-        }
 
-
-        g.setColor(Color.red);
-        g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
-
-        // yılanın görününümü
-        for(int i = 0; i < bodyPart; i++){
-            if( i==0){
-                g.setColor(Color.green);
-                g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE);
-            }else{
-                g.setColor(new Color(45,180,0));
-                g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE);
-
+        if(running){
+            //dikey ve yatay çizgiler için desenleri çizmek için for döngüsü.
+            for(int i = 0; i < SCREEN_HEIGH / UNIT_SIZE; i++){
+                g.drawLine(i*UNIT_SIZE, 0, i*UNIT_SIZE, SCREEN_HEIGH);
+                g.drawLine(0, i*UNIT_SIZE, SCREEN_WIDTH*1, i*UNIT_SIZE);
             }
+
+
+            g.setColor(Color.red);
+            g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
+
+            // yılanın görününümü
+            for(int i = 0; i < bodyPart; i++){
+                if( i==0){
+                    g.setColor(Color.green);
+                    g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE);
+                }else{
+                    g.setColor(new Color(45,180,0));
+                    g.fillRect(x[i],y[i],UNIT_SIZE,UNIT_SIZE);
+                }
+            }
+
+            // skor tutma.
+            g.setColor(Color.red);
+            g.setFont( new Font("Ink Free",Font.BOLD,40));
+            FontMetrics metrics = getFontMetrics(g.getFont());
+            g.drawString("Score: " + applesEaten, (SCREEN_WIDTH- metrics.stringWidth("Score: " + applesEaten))/2, g.getFont().getSize()  );
+
+        }else{
+            gameOver(g);
         }
 
     }
+
     public void newApple(){
+        // rastgele bölgelerde çıkması için.
         appleX = random.nextInt((int)(SCREEN_WIDTH / UNIT_SIZE))*UNIT_SIZE;
         appleY  =random.nextInt((int)(SCREEN_HEIGH /UNIT_SIZE))*UNIT_SIZE;
 
@@ -103,25 +117,99 @@ public class GamePanel extends JPanel implements ActionListener {
 
     }
     public void checkApple(){
+        if((x[0] == appleX) && (y[0] == appleY )){
+            bodyPart++;
+            applesEaten++;
+            newApple();
+        }
 
     }
+
+
     public void checkCollections(){
+
+        // yılanın kendine çarpıp çarpmadığı kontrol edilir.
+        for(int i = bodyPart; i > 0 ; i--){
+            if((x[0] == x[i]) && (y[0] == y[i])){
+                running = false;
+            }
+        }
+        // sol sınıra çarpma ihtimali.
+        if(x[0] < 0 ){
+            running = false;
+        }
+        // sağ sınıra çarpma ihtimali.
+        if(x[0] > SCREEN_WIDTH ){
+            running = false;
+        }
+        // üst sınıra çarpma  ihtimali.
+        if(y[0] < 0){
+            running = false;
+        }
+        // alt sınıra çarpma ihtimali.
+        if(y[0] > SCREEN_HEIGH){
+            running = false;
+        }
+        if(!running){
+            timer.stop();
+        }
+
+
 
     }
     public void gameOver(Graphics g){
+        //oyun bittiğinde skorun gözükmesi için.
+        g.setColor(Color.red);
+        g.setFont( new Font("Ink Free",Font.BOLD,40));
+        FontMetrics metrics1 = getFontMetrics(g.getFont());
+        g.drawString("Score: " + applesEaten, (SCREEN_WIDTH- metrics1.stringWidth("Score: " + applesEaten))/2, g.getFont().getSize()  );
+
+
+        // Game Over metni.
+        g.setColor(Color.red);
+        g.setFont( new Font("Ink Free",Font.BOLD,75));
+        FontMetrics metrics2 = getFontMetrics(g.getFont());
+        g.drawString("Game Over", (SCREEN_WIDTH- metrics2.stringWidth("Game Over"))/2, SCREEN_HEIGH/2  );
 
     }
     public class MyKeyAdapter extends KeyAdapter{
 
         @Override
         public void keyPressed(KeyEvent e){
+            switch (e.getKeyCode()){
+                case KeyEvent.VK_LEFT:
+                    if(direction != 'R' ){
+                        direction = 'L';
+                    }
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    if(direction != 'L' ){
+                        direction = 'R';
+                    }
+                    break;
+                case KeyEvent.VK_UP:
+                    if(direction != 'D' ){
+                        direction = 'U';
+                    }
+                    break;
+                case KeyEvent.VK_DOWN:
+                    if(direction != 'U' ){
+                        direction = 'D';
+                    }
+                    break;
 
+            }
         }
     }
 
-
     @Override
     public void actionPerformed(ActionEvent e) {
+        if(running){
+            move();
+            checkApple();
+            checkCollections();
+        }
+        repaint();
 
     }
 }
